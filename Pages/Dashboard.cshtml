@@ -1,0 +1,63 @@
+
+@page
+
+@{
+    ViewData["Title"] = "Dashboard";
+}
+
+<div class="container mt-4">
+    <h1>Blog Dashboard</h1>
+
+    <h3>Total Blog Posts</h3>
+
+    <div id="postCount" class="alert alert-primary">
+        Loading posts...
+    </div>
+
+    <h3 class="mt-4">Recent Blog Posts</h3>
+
+    <ul id="recentPosts" class="list-group">
+        <li class="list-group-item">Loading recent posts...</li>
+    </ul>
+</div>
+
+<script>
+    async function loadPosts() {
+        try {
+            const response = await fetch('/api/posts');
+
+            if (!response.ok) {
+                throw new Error('Unable to load posts.');
+            }
+
+            const posts = await response.json();
+
+            document.getElementById('postCount').textContent =
+                'Total Posts: ' + posts.length;
+
+            const recentPosts = document.getElementById('recentPosts');
+
+            recentPosts.innerHTML = '';
+
+            posts.slice(-5).reverse().forEach(post => {
+                const li = document.createElement('li');
+                li.className = 'list-group-item';
+                li.textContent = post.title;
+                recentPosts.appendChild(li);
+            });
+
+            if (posts.length === 0) {
+                recentPosts.textContent = 'No posts available.';
+            }
+
+        } catch (error) {
+            document.getElementById('postCount').textContent =
+                'Error loading posts.';
+
+            document.getElementById('recentPosts').textContent =
+                error.message;
+        }
+    }
+
+    loadPosts();
+</script>
